@@ -3,11 +3,8 @@
 '''
 import numpy as np
 import struct
-from knn import *
 import time
 from linear import randomLinear
-from svm import svm_baseline
-from bp import useBP
 
 # K临近的参数
 k = 4
@@ -81,28 +78,4 @@ if __name__ == "__main__":
     testData = testData*1.0
     testLabels, testL_head = loadLabelSet(testfile2)
 
-    # print('start kNN compute......')
-    # missCount = 0
-    # print('k=', k)
-    # print(time.strftime('%Y-%m-%d %H:%M:%S'))
-    # start = time.time()
-    # for i in range(testL_head[1]):
-    #     out = kNNClassify(testData[i], trainData, trainLabels, k)
-    #     if out != testLabels[i]:
-    #         missCount += 1
-    # print(time.strftime('%Y-%m-%d %H:%M:%S'))
-    # end = time.time()
-    # print('test dataset total:', test_head[1],
-    #       ',miss count:' ,missCount, ',correct ratio:',
-    #       1 - missCount/test_head[1], ',miss ratio:',
-    #       missCount/test_head[1], ',spend:', end - start)
-
-    #svm
-    # 使用svm进行学习
-    # print('svm start......')
-    # print(train.shape)
-    # print(lanelstrain.shape)
-    # print(testData.shape)
-    # svm_baseline(trainData, trainLabels,testData, testLabels)
-
-    # useBP(trainData,trainLabels,testData, testLabels)
+    print('start linear regression...')

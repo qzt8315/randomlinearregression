@@ -5,9 +5,9 @@ import math
 
 class randomLinear:
     def __init__(self, trainData, labels, testData, testLabels, round, n):
-        self.trainData = trainData/255.  #训练数据
+        self.trainData = trainData/256.  #训练数据
         self.labels  = labels   #训练样本的标签
-        self.testData = testData/255.    #测试数据集
+        self.testData = testData/256.    #测试数据集
         self.testLabels = testLabels    #  测试集的样本
         self.n = n  #每类采样的数量
         self.round = round  # 设置随机抽取的次数
@@ -25,56 +25,28 @@ class randomLinear:
             else:
                 self.dict[self.labels[i]] = self.trainData[i]
         # print(self.dict)
-        # 模拟源图像
-        self.original = {}
+
+    def getW(self, original, dataset):
+        return (dataset*dataset.T).I*dataset*original.T
+
+    def start(self):
+        # 开始进行线性回归，实现简易的线性回归选择每类样本的前6个，第一个作为原图像，后面5个作为训练集
+        # 计算每类标签的w
+        w ={}
+        o = {}
+        t = {}
         for key in self.dict.keys():
-            self.original[key] = np.matrix(np.sum(self.dict[key],axis=0)/self.dict[key].shape[0])
-        # print(self.original)
-        self.__working()
-
-    def __working(self):
-        # 进行学习
-        ret = []
-        for i in range(self.testCount):  # 遍历测试集
-            count = {}
-            for j in range(self.round): # 进行round轮
-                minlabel = {}
-                min = None
-                minnorm = None
-                for key in self.dict.keys():
-                    # 抽取样本
-                    # print(self.dict[key].shape)
-                    indexset = []
-                    c = 0
-                    while c <= self.n:
-                        t = random.randint(0, self.dict[key].shape[0] - 1)
-                        if t not in indexset:
-                            indexset.append(t)
-                        c += 1
-                    trainset = np.matrix([self.dict[key][i, :] for i in indexset])
-                    # print(trainset)
-                    # a = trainset * trainset.T
-                    # print((trainset * trainset.T).I)
-                    w = (trainset*trainset.T).I*trainset*np.matrix(self.dict[key][0, :]).T
-                    norm = math.pow(np.linalg.norm((self.testData[i].T - trainset.T*w)/self.n, ord=2), 2)
-                    if min is None or minnorm > norm:
-                        min = key
-                        minnorm = norm
-                if min in minlabel.keys():
-                    minlabel[min] += 1
-                else:
-                    minlabel[min] = 1
-            retMax = None
-            retmaxValue = None
-            for key in count.keys():
-                if retMax is None or retmaxValue < count[key]:
-                    retMax = key
-                    retmaxValue = count[key]
-            ret.append(retMax)
-        a = 1
-
-
-
-    def printWork(self):
-        # 获取学习的结果
-        return
+            o[key] = np.matrix(self.dict[key][0, :])
+            t[key] = np.matrix(self.dict[key][1:6, :])
+            w[key] = self.getW(o[key], t[key])
+        # 做测试集预测
+        for i in range(self.testCount):
+            label = None
+            minNorm = None
+            # 计算范数
+            for key in self.dict.keys():
+                norm = np.linalg.norm(self.testData[i] - t[key].T * w[key])
+                if label is None or minNorm > norm:
+                    label = key
+                    minNorm = norm
+            
